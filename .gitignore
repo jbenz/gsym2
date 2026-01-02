@@ -1,3 +1,19 @@
+# Ignore all files ending with .log
+*.log
+*.backup
+*.dist
+*.working
+
+# Ignore a specific file
+my_secrets.txt
+.env
+package-lock.json
+
+# Ignore an entire directory (trailing slash is key)
+build/
+temp/
+node_modules/
+
 # Logs
 logs
 *.log
