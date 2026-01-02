@@ -1,0 +1,35 @@
+{
+  "name": "gsym-dashboard",
+  "version": "1.1.0",
+  "description": "Geth + Prysm Monitoring Dashboard with I/O Statistics",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development nodemon server.js",
+    "stop": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "keywords": [
+    "ethereum",
+    "geth",
+    "prysm",
+    "monitoring",
+    "dashboard",
+    "node",
+    "iostat",
+    "system-health"
+  ],
+  "author": "GSYM Contributors",
+  "license": "MIT"
+}

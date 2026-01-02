@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">GSYM Dashboard</title>
+    <style id="themeStyles">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-hover: #5568d3;
+            --primary-active: #4952bc;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent: #667eea;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .status-badge.live {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.syncing {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .network-info {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .network-info strong {
+            color: #666;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-detail {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        .eta-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .errors-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .errors-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .error-item {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error-service {
+            font-weight: bold;
+            color: #ef4444;
+            margin-bottom: 4px;
+        }
+
+        .no-errors {
+            color: #10b981;
+            font-style: italic;
+        }
+
+        .gauge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .gauge-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 60px;
+        }
+
+        .gauge-bar {
+            flex: 1;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            background: var(--gradient);
+        }
+
+        .subsection {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f5f5f5;
+        }
+
+        .subsection-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inline-stat {
+            display: inline-block;
+            margin-right: 16px;
+            margin-bottom: 8px;
+        }
+
+        .inline-stat-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inline-stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .io-device {
+            background: #f9fafb;
+            border-left: 3px solid var(--primary);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .io-device-name {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .io-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: #666;
+        }
+
+        .io-stat-label {
+            color: #999;
+        }
+
+        .io-stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header-right {
+                text-align: center;
+                margin-top: 15px;
+            }
+
+            .inline-stat {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1 id="dashboardTitle">🖥️ GSYM Dashboard</h1>
+                <p id="headerText">Real-time Ethereum Node Monitoring</p>
+            </div>
+            <div class="header-right">
+                <div id="statusBadge" class="status-badge live">
+                    <span class="status-dot"></span>
+                    Live
+                </div>
+                <div class="network-info">
+                    <div><strong>Internal IP:</strong> <span id="internalIP">—</span></div>
+                    <div id="externalIPDiv" style="display: none;"><strong>External IP:</strong> <span id="externalIP">—</span></div>
+                </div>
+                <div class="timestamp">Last updated: <span id="lastUpdated">—</span></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Execution Layer (Geth) -->
+            <div class="card">
+                <div class="card-title">⚙️ Execution Layer (Geth)</div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">Overall Progress</span>
+                    <span class="stat-value" id="gethProgress">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="gethProgressBar" style="width: 0%"></div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <div class="stat-label" style="margin-bottom: 8px;">Chain Download Sync</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="chainSyncBar" style="width: 0%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                        <span style="font-size: 12px; color: #999;" id="chainSyncText">0%</span>
+                        <span class="eta-text" id="chainETAText">—</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <div class="stat-label" style="margin-bottom: 8px;">State Download Sync</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="stateSyncBar" style="width: 0%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+                        <span style="font-size: 12px; color: #999;" id="stateSyncText">0%</span>
+                        <span class="eta-text" id="stateETAText">—</span>
+                    </div>
+                </div>
+
+                <div class="stat-row" style="margin-top: 15px;">
+                    <span class="stat-label">Peers</span>
+                    <span class="stat-value" id="gethPeers">0</span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">Block Height</span>
+                    <span class="stat-value" id="gethBlocks">0</span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">Status</span>
+                    <span class="stat-value" id="gethStatus" style="font-size: 14px; padding: 4px 8px; border-radius: 4px; background: #fef3c7; color: #92400e;">SYNCING</span>
+                </div>
+            </div>
+
+            <!-- Consensus Layer (Prysm) -->
+            <div class="card">
+                <div class="card-title">⚡ Consensus Layer (Prysm)</div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">Current Slot</span>
+                    <span class="stat-value" id="prysmSlot">0</span>
+                    <span class="stat-detail" id="prysmSlotDetail"></span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">Finalized Epoch</span>
+                    <span class="stat-value" id="prysmEpoch">0</span>
+                    <span class="stat-detail" id="prysmEpochDetail"></span>
+                </div>
+
+                <div class="stat-row">
+                    <span class="stat-label">Connected Peers</span>
+                    <span class="stat-value" id="prysmPeers">0</span>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-label">Network Connections</div>
+                    
+                    <div class="stat-row" style="padding: 6px 0;">
+                        <span class="stat-label">QUIC Inbound</span>
+                        <span class="stat-value" id="quicIn" style="font-size: 14px;">0</span>
+                    </div>
+
+                    <div class="stat-row" style="padding: 6px 0;">
+                        <span class="stat-label">QUIC Outbound</span>
+                        <span class="stat-value" id="quicOut" style="font-size: 14px;">0</span>
+                    </div>
+
+                    <div class="stat-row" style="padding: 6px 0;">
+                        <span class="stat-label">TCP Inbound</span>
+                        <span class="stat-value" id="tcpIn" style="font-size: 14px;">0</span>
+                    </div>
+
+                    <div class="stat-row" style="padding: 6px 0;">
+                        <span class="stat-label">TCP Outbound</span>
+                        <span class="stat-value" id="tcpOut" style="font-size: 14px;">0</span>
+                    </div>
+                </div>
+
+                <div class="stat-row" style="margin-top: 15px;">
+                    <span class="stat-label">Status</span>
+                    <span class="stat-value" id="prysmStatus" style="font-size: 14px; padding: 4px 8px; border-radius: 4px; background: #d1fae5; color: #065f46;">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="card">
+                <div class="card-title">❤️ System Health</div>
+                
+                <div style="margin-bottom: 15px;">
+                    <div class="stat-label" style="margin-bottom: 8px;">Memory Usage</div>
+                    <div class="gauge">
+                        <span class="gauge-value" id="memoryPercent">0%</span>
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" id="memoryBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-detail" id="memoryDetail" style="margin-top: 8px;">—</div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <div class="stat-label" style="margin-bottom: 8px;">Disk Usage</div>
+                    <div class="gauge">
+                        <span class="gauge-value" id="diskPercent">0%</span>
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" id="diskBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-detail" id="diskDetail" style="margin-top: 8px;">—</div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-label">CPU Load Average</div>
+                    <div style="line-height: 1.8;">
+                        <div class="inline-stat">
+                            <span class="inline-stat-label">1 min</span>
+                            <span class="inline-stat-value" id="loadAvg1">0.0</span>
+                        </div>
+                        <div class="inline-stat">
+                            <span class="inline-stat-label">5 min</span>
+                            <span class="inline-stat-value" id="loadAvg5">0.0</span>
+                        </div>
+                        <div class="inline-stat">
+                            <span class="inline-stat-label">15 min</span>
+                            <span class="inline-stat-value" id="loadAvg15">0.0</span>
+                        </div>
+                        <div class="inline-stat">
+                            <span class="inline-stat-label">Cores</span>
+                            <span class="inline-stat-value" id="cpuCores">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-row" style="margin-top: 15px;">
+                    <span class="stat-label">Uptime</span>
+                    <span class="stat-value" id="uptime" style="font-size: 14px;">0d 0h</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- I/O Statistics -->
+
+        <!-- Errors Section -->
+        <div class="errors-section">
+            <div class="errors-title">⚠️ Recent Errors & Warnings</div>
+            <div id="errorsList">
+                <div class="no-errors">No errors detected</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer" id="footerText">
+            Powered by GSYM • Geth + Prysm Monitoring Suite
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/eth-node-stats';
+        const CONFIG_URL = '/api/config';
+        const POLL_INTERVAL = 5000; // 5 seconds
+
+        // Load configuration and apply themes
+        async function loadConfig() {
+            try {
+                const response = await fetch(CONFIG_URL);
+                const config = await response.json();
+
+                // Apply title and text
+                document.title = config.title;
+                document.getElementById('dashboardTitle').textContent = `🖥️ ${config.title}`;
+                document.getElementById('headerText').textContent = config.headerText;
+                document.getElementById('footerText').textContent = config.footerText;
+                document.getElementById('internalIP').textContent = config.internalIP;
+
+                // Apply theme colors
+                const themeColors = config.themeColors;
+                document.documentElement.style.setProperty('--primary', themeColors.primary);
+                document.documentElement.style.setProperty('--primary-hover', themeColors.primaryHover);
+                document.documentElement.style.setProperty('--primary-active', themeColors.primaryActive);
+                document.documentElement.style.setProperty('--gradient', themeColors.gradient);
+                document.documentElement.style.setProperty('--accent', themeColors.accent);
+            } catch (err) {
+                console.error('Config load error:', err);
+            }
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            });
+        }
+
+        function renderIOStatCpuStats(iostat) {
+            if (!iostat || !iostat.cpu) return;
+            
+            const cpu = iostat.cpu;
+            const stats = [
+                { label: 'User', value: cpu.user, unit: '%' },
+                { label: 'System', value: cpu.system, unit: '%' },
+                { label: 'I/O Wait', value: cpu.iowait, unit: '%' },
+                { label: 'Idle', value: cpu.idle, unit: '%' }
+            ];
+
+            const html = stats.map(stat => `
+                <div class="io-device" style="border-left-color: var(--primary); padding: 12px; text-align: center;">
+                    <div style="font-weight: 600; color: #666; font-size: 11px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">${stat.label}</div>
+                    <div style="font-size: 18px; font-weight: bold; color: var(--primary);">${stat.value}${stat.unit}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('iostatCpuStats').innerHTML = html;
+        }
+
+        function renderIOStatDevices(iostat) {
+            if (!iostat || !iostat.devices || iostat.devices.length === 0) {
+                document.getElementById('iostatDevices').innerHTML = '<div style="color: #999; font-size: 12px;">No I/O device data available</div>';
+                return;
+            }
+
+            const html = iostat.devices.map(device => `
+                <div class="io-device">
+                    <div class="io-device-name">${device.name}</div>
+                    <div class="io-stat-row">
+                        <span class="io-stat-label">TPS:</span>
+                        <span class="io-stat-value">${device.tps}</span>
+                    </div>
+                    <div class="io-stat-row">
+                        <span class="io-stat-label">Read/sec:</span>
+                        <span class="io-stat-value">${device.kbReadSec} KB/s</span>
+                    </div>
+                    <div class="io-stat-row">
+                        <span class="io-stat-label">Write/sec:</span>
+                        <span class="io-stat-value">${device.kbWriteSec} KB/s</span>
+                    </div>
+                    <div class="io-stat-row">
+                        <span class="io-stat-label">Total Read:</span>
+                        <span class="io-stat-value">${device.totalKbRead} KB</span>
+                    </div>
+                    <div class="io-stat-row">
+                        <span class="io-stat-label">Total Write:</span>
+                        <span class="io-stat-value">${device.totalKbWrite} KB</span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('iostatDevices').innerHTML = html;
+        }
+
+        async function updateDashboard() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                // Update network info
+                if (data.network) {
+                    if (data.network.internalIP) {
+                        document.getElementById('internalIP').textContent = data.network.internalIP;
+                    }
+                    if (data.network.externalIP) {
+                        document.getElementById('externalIPDiv').style.display = 'block';
+                        document.getElementById('externalIP').textContent = data.network.externalIP;
+                    }
+                }
+
+                // Update Geth stats
+                if (data.geth) {
+                    const gethOverall = data.geth.overallProgress || 0;
+                    document.getElementById('gethProgress').textContent = `${gethOverall.toFixed(1)}%`;
+                    document.getElementById('gethProgressBar').style.width = `${Math.min(gethOverall, 100)}%`;
+
+                    document.getElementById('chainSyncText').textContent = `${(data.geth.chainSync || 0).toFixed(1)}%`;
+                    document.getElementById('chainSyncBar').style.width = `${Math.min(data.geth.chainSync || 0, 100)}%`;
+                    document.getElementById('chainETAText').textContent = data.geth.chainETA || '—';
+
+                    document.getElementById('stateSyncText').textContent = `${(data.geth.stateSync || 0).toFixed(1)}%`;
+                    document.getElementById('stateSyncBar').style.width = `${Math.min(data.geth.stateSync || 0, 100)}%`;
+                    document.getElementById('stateETAText').textContent = data.geth.stateETA || '—';
+
+                    document.getElementById('gethPeers').textContent = data.geth.peers || 0;
+                    document.getElementById('gethBlocks').textContent = data.geth.blocksFormatted || '0';
+                    
+                    const gethStatusEl = document.getElementById('gethStatus');
+                    gethStatusEl.textContent = data.geth.status || 'UNKNOWN';
+                    gethStatusEl.style.background = data.geth.synced ? '#d1fae5' : '#fef3c7';
+                    gethStatusEl.style.color = data.geth.synced ? '#065f46' : '#92400e';
+                }
+
+                // Update Prysm stats
+                if (data.prysm) {
+                    document.getElementById('prysmSlot').textContent = data.prysm.slotFormatted || '0';
+                    document.getElementById('prysmEpoch').textContent = data.prysm.epochFormatted || '0';
+                    document.getElementById('prysmPeers').textContent = data.prysm.peers || 0;
+
+                    if (data.prysm.connections) {
+                        document.getElementById('quicIn').textContent = data.prysm.connections.quicIn || 0;
+                        document.getElementById('quicOut').textContent = data.prysm.connections.quicOut || 0;
+                        document.getElementById('tcpIn').textContent = data.prysm.connections.tcpIn || 0;
+                        document.getElementById('tcpOut').textContent = data.prysm.connections.tcpOut || 0;
+                    }
+
+                    document.getElementById('prysmStatus').textContent = data.prysm.status || 'UNKNOWN';
+                }
+
+                // Update System stats
+                if (data.system) {
+                    const memory = data.system.memory || 0;
+                    document.getElementById('memoryPercent').textContent = `${memory}%`;
+                    document.getElementById('memoryBar').style.width = `${memory}%`;
+                    document.getElementById('memoryDetail').textContent = 
+                        `${data.system.memoryUsed || '—'} / ${data.system.memoryTotal || '—'}`;
+
+                    const disk = data.system.disk || 0;
+                    document.getElementById('diskPercent').textContent = `${disk}%`;
+                    document.getElementById('diskBar').style.width = `${disk}%`;
+                    document.getElementById('diskDetail').textContent = 
+                        `${data.system.diskUsed || '—'} / ${data.system.diskTotal || '—'}`;
+
+                    document.getElementById('loadAvg1').textContent = data.system.loadAvg1 || '0.0';
+                    document.getElementById('loadAvg5').textContent = data.system.loadAvg5 || '0.0';
+                    document.getElementById('loadAvg15').textContent = data.system.loadAvg15 || '0.0';
+                    document.getElementById('cpuCores').textContent = data.system.cpuCores || '0';
+
+                    document.getElementById('uptime').textContent = data.system.uptime || '—';
+
+                    // Render I/O stats
+                    if (data.system.iostat) {
+                        renderIOStatCpuStats(data.system.iostat);
+                        renderIOStatDevices(data.system.iostat);
+                    }
+                }
+
+                // Update timestamp
+                document.getElementById('lastUpdated').textContent = formatTime(new Date());
+
+                // Update status badge
+                const isHealthy = data.geth?.status === 'SYNCED' && data.prysm?.status === 'ACTIVE';
+                const badge = document.getElementById('statusBadge');
+                badge.className = `status-badge ${isHealthy ? 'live' : 'syncing'}`;
+                badge.innerHTML = `<span class="status-dot"></span>${isHealthy ? 'Healthy' : 'Syncing'}`;
+
+            } catch (error) {
+                console.error('Dashboard update error:', error);
+                document.getElementById('errorsList').innerHTML = `
+                    <div class="error-item">
+                        <div class="error-service">Connection Error</div>
+                        Unable to fetch node stats: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Load config first, then start polling
+        loadConfig();
+        updateDashboard();
+        setInterval(updateDashboard, POLL_INTERVAL);
+    </script>
+</body>
+</html>
