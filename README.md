@@ -7,3 +7,30 @@ a dashboard for reporting the sync state and health of go-ethereum (geth) and pr
 
 | <img alt="image" src="https://github.com/user-attachments/assets/02055a6c-cf16-41ff-8e39-1f67f960a633" /> | <img alt="image" src="https://github.com/user-attachments/assets/41a96047-0895-4034-9298-f5583230b35e" /> |
 | --- | --- |
+
+# Getting Started
+
+## Quickstart
+
+### 1. Clone repo
+   ```
+  git clone https://github.com/jbenz/gsym2
+  cd gsym2
+  cp env.example .env
+   ```
+
+### 2. Edit .env file
+   ```
+  cp env.example .env
+  nano .env # Edit to your liking
+   ```
+
+### 3. Install Server
+   ```
+  npm install
+   ```
+
+### 4. Start Server
+   ```
+  npm start
+   ```
